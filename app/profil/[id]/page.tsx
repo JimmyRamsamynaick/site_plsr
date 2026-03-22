@@ -8,6 +8,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { CommentSection } from "@/components/profile/comment-section";
 import { ProfileViewTracker } from "@/components/profile/profile-view-tracker";
+import { MediaGallery } from "@/components/profile/media-gallery";
+import { ChatWindow } from "@/components/profile/chat-window";
 
 export default async function UserProfilePage({
   params,
@@ -20,6 +22,12 @@ export default async function UserProfilePage({
   const user = await prisma.user.findUnique({
     where: { id },
     include: {
+      favoritedBy: {
+        select: { userId: true }
+      },
+      media: {
+        orderBy: { createdAt: 'desc' }
+      },
       comments: {
         include: {
           author: true,
@@ -50,6 +58,11 @@ export default async function UserProfilePage({
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto space-y-12">
       <ProfileViewTracker profileId={user.id} currentUserId={session?.user?.id} />
+      
+      {session?.user?.id && session.user.id !== user.id && (
+        <ChatWindow targetId={user.id} targetName={user.name} currentUserId={session.user.id} />
+      )}
+
       <Link 
         href="/membres" 
         className="inline-flex items-center gap-2 text-white/40 hover:text-gold transition-colors mb-4 group"
@@ -60,11 +73,14 @@ export default async function UserProfilePage({
 
       <div className="relative">
         {/* Version modifiée du header pour la vue publique (sans boutons d'édition) */}
-        <ProfileHeader user={userWithData} isPublicView={true} />
+        <ProfileHeader 
+          user={userWithData} 
+          isPublicView={true} 
+          currentUserId={session?.user?.id}
+        />
       </div>
       
-      <div className="grid grid-cols-1 gap-12">
-        <StatsGrid user={userWithData} isPublicView={true} />
+      <StatsGrid user={userWithData} isPublicView={true} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-12">
@@ -100,6 +116,15 @@ export default async function UserProfilePage({
               </div>
             </div>
 
+            {/* Galerie Média (uniquement si publique ou si c'est notre propre profil) */}
+            {(userWithData.isGalleryPublic || session?.user?.id === user.id) && (
+              <MediaGallery 
+                userId={user.id} 
+                initialMedia={user.media} 
+                isOwner={session?.user?.id === user.id} 
+              />
+            )}
+
             {/* Comment Section */}
             <CommentSection 
               comments={user.comments} 
@@ -113,7 +138,6 @@ export default async function UserProfilePage({
             {/* On pourrait mettre autre chose ici plus tard */}
           </div>
         </div>
-      </div>
     </main>
   );
 }

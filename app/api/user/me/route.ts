@@ -23,7 +23,8 @@ export async function GET() {
       ...user,
       tags: JSON.parse(user.tagsRaw || "[]"),
       isPublic: user.isPublic,
-      isAnonymous: user.isAnonymous
+      isAnonymous: user.isAnonymous,
+      isGalleryPublic: user.isGalleryPublic
     });
   } catch (error) {
     console.error("[USER_GET]", error);

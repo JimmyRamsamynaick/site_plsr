@@ -7,6 +7,8 @@ import { TagManager } from "@/components/dashboard/tag-manager";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { NotificationHandler } from "@/components/dashboard/notification-handler";
+import { FaHeart as FaHeartSolid } from "react-icons/fa";
+import { MediaGallery } from "@/components/profile/media-gallery";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -19,6 +21,17 @@ export default async function DashboardPage() {
     where: { id: session.user.id },
     include: { 
       posts: true,
+      media: {
+        orderBy: { createdAt: 'desc' }
+      },
+      favorites: {
+        include: {
+          target: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      },
       profileViews: {
         include: {
           visitor: true
@@ -62,6 +75,7 @@ export default async function DashboardPage() {
     tags: JSON.parse(user.tagsRaw || "[]"),
     discordRoles: JSON.parse(user.discordRolesRaw || "[]"),
     profileViews: user.profileViews || [],
+    favorites: user.favorites || [],
     unreadCommentsCount: user.comments.length,
     unreadViewsCount: user.profileViews.filter(v => !v.isRead).length
   };
@@ -75,12 +89,18 @@ export default async function DashboardPage() {
       <NotificationHandler />
       <ProfileHeader user={userWithTags} />
       
-      <div className="grid grid-cols-1 gap-12">
-        <StatsGrid user={userWithTags} />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-12">
-            <TagManager initialTags={userWithTags.tags} />
+      <StatsGrid user={userWithTags} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2 space-y-12">
+          {/* Galerie Média Privée */}
+          <MediaGallery 
+            userId={user.id} 
+            initialMedia={user.media} 
+            isOwner={true} 
+          />
+
+          <TagManager initialTags={userWithTags.tags} />
             
             {/* Wall of Temptations Preview */}
             <div className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/5">
@@ -134,6 +154,40 @@ export default async function DashboardPage() {
               </div>
             </div>
             
+            <div className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/5 relative overflow-hidden group">
+              <h3 className="text-xl font-serif text-white mb-6">Mes Coups de Cœur</h3>
+              <div className="space-y-4">
+                {userWithTags.favorites.length > 0 ? (
+                  userWithTags.favorites.map((fav: any) => (
+                    <Link 
+                      key={fav.id} 
+                      href={`/profil/${fav.targetId}`}
+                      className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group/fav"
+                    >
+                      <img 
+                        src={fav.target.image || "/globe.svg"} 
+                        alt={fav.target.name}
+                        className="w-10 h-10 rounded-full object-cover border border-white/10"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white font-serif truncate group-hover/fav:text-primary transition-colors">
+                          {fav.target.name}
+                        </p>
+                        <p className="text-[10px] text-white/20 uppercase tracking-widest">Voir le profil</p>
+                      </div>
+                      <div className="text-primary opacity-40 group-hover/fav:opacity-100 transition-opacity">
+                        <FaHeartSolid className="w-3 h-3" />
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-xs text-white/20 italic text-center py-6">
+                    "Votre cœur n'a pas encore de favori..."
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/5 relative overflow-hidden group">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-serif text-white">Regard posé sur toi</h3>
@@ -191,7 +245,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
     </main>
   );
 }

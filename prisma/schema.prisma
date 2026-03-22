@@ -49,6 +49,7 @@ model User {
   // Préférences de visibilité
   isPublic        Boolean   @default(true)
   isAnonymous     Boolean   @default(false)
+  isGalleryPublic Boolean   @default(false)
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -61,6 +62,70 @@ model User {
   // Vues de profil
   profileViews    ProfileView[] @relation("ProfileOwner")
   viewedProfiles  ProfileView[] @relation("ProfileVisitor")
+
+  // Favoris (Coups de cœur)
+  favorites       Favorite[]    @relation("UserFavorites") // Ceux que j'ai mis en favoris
+  favoritedBy     Favorite[]    @relation("UserFavoritedBy") // Ceux qui m'ont mis en favoris
+
+  // Galerie Média
+  media           Media[]
+
+  // Messagerie
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  conversations    Conversation[] @relation("UserConversations")
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  
+  // Celui qui met en favori
+  userId      String
+  user        User     @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Celui qui est mis en favori
+  targetId    String
+  target      User     @relation("UserFavoritedBy", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetId])
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  url         String
+  type        String   @default("image") // image ou video
+  caption     String?
+  isNSFW      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  participants User[]   @relation("UserConversations")
+  messages     Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  content        String
+  createdAt      DateTime     @default(now())
+  isRead         Boolean      @default(false)
+  
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  receiverId     String
+  receiver       User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
 model ProfileView {
@@ -89,11 +154,11 @@ model Comment {
   authorId  String
   author    User     @relation("AuthoredComments", fields: [authorId], references: [id], onDelete: Cascade)
   
-  // Le profil sur lequel le commentaire est laissé
+  // Le profil sur lequel le commentaire est posté
   profileId String
   profile   User     @relation("ProfileComments", fields: [profileId], references: [id], onDelete: Cascade)
   
-  // Système de réponse (thread simple)
+  // Gestion des réponses
   parentId  String?
   parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
@@ -111,6 +176,6 @@ model Post {
   id        String   @id @default(cuid())
   content   String
   authorId  String
-  createdAt DateTime @default(now())
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

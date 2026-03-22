@@ -24,6 +24,7 @@ function EditProfileContent() {
     tags: [] as string[],
     isPublic: true,
     isAnonymous: false,
+    isGalleryPublic: false,
   });
 
   useEffect(() => {
@@ -42,6 +43,7 @@ function EditProfileContent() {
             tags: user.tags || [],
             isPublic: user.isPublic ?? true,
             isAnonymous: user.isAnonymous ?? false,
+            isGalleryPublic: user.isGalleryPublic ?? false,
           });
         }
       };
@@ -262,6 +264,19 @@ function EditProfileContent() {
                         </div>
                         <div className={`w-12 h-6 rounded-full transition-all duration-500 border ${formData.isAnonymous ? "bg-gold/20 border-gold/50" : "bg-white/5 border-white/10"}`}>
                           <div className={`w-4 h-4 rounded-full transition-all duration-500 mt-1 ${formData.isAnonymous ? "bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] ml-7" : "bg-white/20 ml-1"}`} />
+                        </div>
+                      </div>
+
+                      <div 
+                        onClick={() => setFormData({ ...formData, isGalleryPublic: !formData.isGalleryPublic })}
+                        className="p-8 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between group cursor-pointer hover:border-gold/30 transition-all"
+                      >
+                        <div>
+                          <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-1">Galerie Publique</h3>
+                          <p className="text-[10px] text-white/30 italic">Autoriser les autres membres à voir votre galerie média.</p>
+                        </div>
+                        <div className={`w-12 h-6 rounded-full transition-all duration-500 border ${formData.isGalleryPublic ? "bg-gold/20 border-gold/50" : "bg-white/5 border-white/10"}`}>
+                          <div className={`w-4 h-4 rounded-full transition-all duration-500 mt-1 ${formData.isGalleryPublic ? "bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] ml-7" : "bg-white/20 ml-1"}`} />
                         </div>
                       </div>
                     </div>

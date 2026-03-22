@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { name, bio, status, tags, isPublic, isAnonymous } = await req.json();
+    const { name, bio, status, tags, isPublic, isAnonymous, isGalleryPublic } = await req.json();
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
         tagsRaw: JSON.stringify(tags || []),
         isPublic: isPublic ?? true,
         isAnonymous: isAnonymous ?? false,
+        isGalleryPublic: isGalleryPublic ?? false,
       },
     });
 

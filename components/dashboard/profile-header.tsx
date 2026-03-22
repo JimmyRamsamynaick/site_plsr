@@ -2,21 +2,57 @@
 
 import { motion } from "framer-motion";
 import { User } from "next-auth";
-import { FaCrown, FaStar, FaGem, FaUserShield, FaUser, FaVideo, FaCheckCircle, FaMagic, FaShareAlt } from "react-icons/fa";
-import Link from "next/link";
+import { FaCrown, FaStar, FaGem, FaUserShield, FaUser, FaVideo, FaCheckCircle, FaMagic, FaShareAlt, FaHeart as FaHeartSolid, FaRegHeart } from "react-icons/fa";
 import { DISCORD_ROLE_MAPPING } from "@/lib/discord-roles";
+import Link from "next/link";
 import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 
 interface ProfileHeaderProps {
   user: User & { 
     role?: string;
     discordRoles?: string[];
     id: string;
+    favoritedBy?: any[];
   };
   isPublicView?: boolean;
+  currentUserId?: string;
 }
 
-export const ProfileHeader = ({ user, isPublicView = false }: ProfileHeaderProps) => {
+export const ProfileHeader = ({ user, isPublicView = false, currentUserId }: ProfileHeaderProps) => {
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentUserId && user.favoritedBy) {
+      setIsFavorited(user.favoritedBy.some((f: any) => f.userId === currentUserId));
+    }
+  }, [currentUserId, user.favoritedBy]);
+
+  const toggleFavorite = async () => {
+    if (!currentUserId) {
+      toast.error("Vous devez être connecté");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/favorites/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetId: user.id }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsFavorited(data.action === "added");
+        toast.success(data.action === "added" ? "Coup de cœur ajouté" : "Coup de cœur retiré");
+      }
+    } catch (error) {
+      toast.error("Une erreur est survenue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const copyProfileLink = () => {
     const url = `${window.location.origin}/profil/${user.id}`;
     navigator.clipboard.writeText(url);
@@ -124,28 +160,39 @@ export const ProfileHeader = ({ user, isPublicView = false }: ProfileHeaderProps
           </p>
         </div>
 
-        {!isPublicView && (
+        {/* Boutons d'action réintégrés */}
+        {!isPublicView ? (
           <div className="flex flex-col sm:flex-row gap-3 mb-2 w-full sm:w-auto">
             <Link href="/dashboard/edit" className="w-full sm:w-auto">
-              <button className="w-full px-6 py-2 rounded-full border border-white/10 text-[11px] uppercase tracking-widest text-white/50 hover:border-gold/30 hover:text-gold transition-all duration-300">
+              <button className="w-full px-6 py-2 rounded-full border border-white/10 text-[11px] uppercase tracking-widest text-white/50 hover:border-gold/30 hover:text-gold transition-all duration-300 bg-black/40 backdrop-blur-md">
                 Éditer l'âme
               </button>
             </Link>
             <button 
               onClick={copyProfileLink}
-              className="w-full sm:px-6 py-2 rounded-full bg-primary/10 border border-primary/30 text-[11px] uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full sm:px-6 py-2 rounded-full bg-primary/10 border border-primary/30 text-[11px] uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 backdrop-blur-md"
             >
               <FaShareAlt className="text-[10px]" />
               Partager mon secret
             </button>
           </div>
-        )}
-
-        {isPublicView && (
-          <div className="flex gap-3 mb-2 w-full sm:w-auto">
-            <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <button className="w-full px-6 py-2 rounded-full bg-gold/10 border border-gold/30 text-[11px] uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all duration-300">
-                Rencontrer sur Discord
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-3 mb-2 w-full sm:w-auto">
+            <button 
+              onClick={toggleFavorite}
+              disabled={loading}
+              className={`flex-1 sm:px-6 py-2 rounded-full border transition-all duration-300 flex items-center justify-center gap-2 text-[11px] uppercase tracking-widest backdrop-blur-md ${
+                isFavorited 
+                  ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
+                  : "bg-white/5 border-white/10 text-white/50 hover:border-primary/30 hover:text-primary"
+              }`}
+            >
+              {isFavorited ? <FaHeartSolid className="text-[10px]" /> : <FaRegHeart className="text-[10px]" />}
+              {isFavorited ? "Coup de cœur" : "Coup de cœur"}
+            </button>
+            <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="flex-1 sm:w-auto">
+              <button className="w-full px-6 py-2 rounded-full bg-gold/10 border border-gold/30 text-[11px] uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all duration-300 backdrop-blur-md">
+                Discord
               </button>
             </a>
           </div>
