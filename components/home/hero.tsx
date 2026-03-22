@@ -62,7 +62,7 @@ export const Hero = () => {
                 </LuxuryButton>
               </Link>
             ) : (
-              <a href="https://discord.gg/DrJ2rvEt6h" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+              <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                 <LuxuryButton 
                   className="w-full sm:w-auto px-10"
                   icon={<FaDiscord className="text-xl" />}

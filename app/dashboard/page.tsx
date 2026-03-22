@@ -5,6 +5,8 @@ import { ProfileHeader } from "@/components/dashboard/profile-header";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { TagManager } from "@/components/dashboard/tag-manager";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { NotificationHandler } from "@/components/dashboard/notification-handler";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -26,6 +28,10 @@ export default async function DashboardPage() {
         },
         take: 10
       },
+      comments: { // Les commentaires reçus sur son profil
+        where: { isRead: false },
+        select: { id: true }
+      },
       writtenComments: {
         take: 5,
         orderBy: {
@@ -42,12 +48,22 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
+  // Marquer les vues comme lues quand on accède au dashboard
+  if (user.profileViews.some(v => !v.isRead)) {
+    await prisma.profileView.updateMany({
+      where: { profileId: user.id, isRead: false },
+      data: { isRead: true }
+    });
+  }
+
   // Adapter les données SQLite pour le frontend
   const userWithTags = {
     ...user,
     tags: JSON.parse(user.tagsRaw || "[]"),
     discordRoles: JSON.parse(user.discordRolesRaw || "[]"),
-    profileViews: user.profileViews || []
+    profileViews: user.profileViews || [],
+    unreadCommentsCount: user.comments.length,
+    unreadViewsCount: user.profileViews.filter(v => !v.isRead).length
   };
 
   const isElite = userWithTags.discordRoles.some((id: string) => 
@@ -56,6 +72,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto space-y-12">
+      <NotificationHandler />
       <ProfileHeader user={userWithTags} />
       
       <div className="grid grid-cols-1 gap-12">
@@ -84,7 +101,14 @@ export default async function DashboardPage() {
           <div className="space-y-8">
             <div className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -z-10" />
-              <h3 className="text-xl font-serif text-white mb-6">Tes derniers Murmures</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-serif text-white">Tes derniers Murmures</h3>
+                {userWithTags.unreadCommentsCount > 0 && (
+                  <span className="px-2 py-1 rounded-full bg-primary text-white text-[8px] font-bold animate-pulse">
+                    {userWithTags.unreadCommentsCount} NOUVEAU(X)
+                  </span>
+                )}
+              </div>
               
               <div className="space-y-4">
                 {user.writtenComments.length > 0 ? (
@@ -111,7 +135,12 @@ export default async function DashboardPage() {
             </div>
             
             <div className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/5 relative overflow-hidden group">
-              <h3 className="text-xl font-serif text-white mb-4">Regard posé sur toi</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-serif text-white">Regard posé sur toi</h3>
+                {isElite && userWithTags.unreadViewsCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                )}
+              </div>
               
               {!isElite ? (
                 <div className="space-y-4">

@@ -42,6 +42,7 @@ export default async function UserProfilePage({
 
   const userWithData = {
     ...user,
+    status: user.status || "Âme tentée",
     tags: JSON.parse(user.tagsRaw || "[]"),
     discordRoles: JSON.parse(user.discordRolesRaw || "[]")
   };
@@ -109,19 +110,7 @@ export default async function UserProfilePage({
           </div>
 
           <div className="space-y-8">
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20">
-              <h3 className="text-xl font-serif text-white mb-4">Privilèges</h3>
-              <ul className="space-y-4">
-                <li className={`flex items-center gap-3 text-sm text-white`}>
-                  <div className={`w-1.5 h-1.5 rounded-full bg-gold gold-glow`} />
-                  Accès aux salons privés
-                </li>
-                <li className={`flex items-center gap-3 text-sm text-white`}>
-                  <div className={`w-1.5 h-1.5 rounded-full bg-gold gold-glow`} />
-                  Marques personnalisées
-                </li>
-              </ul>
-            </div>
+            {/* On pourrait mettre autre chose ici plus tard */}
           </div>
         </div>
       </div>

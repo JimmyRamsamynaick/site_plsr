@@ -45,6 +45,11 @@ model User {
   tagsRaw         String    @default("[]")
   bio             String?
   status          String?   @default("En attente de tentation")
+  
+  // Préférences de visibilité
+  isPublic        Boolean   @default(true)
+  isAnonymous     Boolean   @default(false)
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   accounts        Account[]
@@ -61,6 +66,7 @@ model User {
 model ProfileView {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
   
   // Celui qui est visité
   profileId String
@@ -77,6 +83,7 @@ model Comment {
   id        String   @id @default(cuid())
   content   String
   createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
   
   // L'auteur du commentaire
   authorId  String

@@ -10,6 +10,7 @@ import { DISCORD_ROLE_MAPPING } from "@/lib/discord-roles";
 export default async function MembresPage() {
   const session = await getServerSession(authOptions);
   const users = await prisma.user.findMany({
+    where: { isPublic: true },
     orderBy: { createdAt: "desc" },
   });
 

@@ -22,6 +22,8 @@ function EditProfileContent() {
     bio: "",
     status: "",
     tags: [] as string[],
+    isPublic: true,
+    isAnonymous: false,
   });
 
   useEffect(() => {
@@ -37,7 +39,9 @@ function EditProfileContent() {
             name: user.name || "",
             bio: user.bio || "",
             status: user.status || "",
-            tags: JSON.parse(user.tagsRaw || "[]"),
+            tags: user.tags || [],
+            isPublic: user.isPublic ?? true,
+            isAnonymous: user.isAnonymous ?? false,
           });
         }
       };
@@ -222,30 +226,44 @@ function EditProfileContent() {
                     </div>
 
                     <div className="space-y-6">
-                      <div className="p-8 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between group">
+                      <div 
+                        onClick={() => setFormData({ ...formData, isPublic: !formData.isPublic })}
+                        className="p-8 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between group cursor-pointer hover:border-gold/30 transition-all"
+                      >
                         <div>
                           <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-1">Profil Public</h3>
                           <p className="text-[10px] text-white/30 italic">Autoriser les autres membres à voir votre secret.</p>
                         </div>
-                        <div className="w-12 h-6 rounded-full bg-gold/20 border border-gold/50 relative">
-                          <div className="absolute right-1 top-1 w-4 h-4 rounded-full bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+                        <div className={`w-12 h-6 rounded-full transition-all duration-500 border ${formData.isPublic ? "bg-gold/20 border-gold/50" : "bg-white/5 border-white/10"}`}>
+                          <div className={`w-4 h-4 rounded-full transition-all duration-500 mt-1 ${formData.isPublic ? "bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] ml-7" : "bg-white/20 ml-1"}`} />
                         </div>
                       </div>
 
-                      <div className="p-8 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between opacity-50 cursor-not-allowed">
+                      <div 
+                        onClick={() => {
+                          const isElite = session?.user?.discordRoles?.some((id: string) => 
+                            ["1458949355175284797", "1463335175416184924", "1461734975027286088"].includes(id)
+                          );
+                          if (isElite) {
+                            setFormData({ ...formData, isAnonymous: !formData.isAnonymous });
+                          } else {
+                            toast.error("Le Mode Anonyme est réservé au rang Élite.");
+                          }
+                        }}
+                        className={`p-8 rounded-2xl bg-black/40 border flex items-center justify-between transition-all ${
+                          session?.user?.discordRoles?.some((id: string) => ["1458949355175284797", "1463335175416184924", "1461734975027286088"].includes(id))
+                            ? "border-white/5 cursor-pointer hover:border-gold/30"
+                            : "border-white/5 opacity-50 cursor-not-allowed"
+                        }`}
+                      >
                         <div>
                           <h3 className="text-white text-sm font-bold uppercase tracking-widest mb-1">Mode Anonyme</h3>
-                          <p className="text-[10px] text-white/30 italic">Masquer votre présence dans les salons vocaux.</p>
+                          <p className="text-[10px] text-white/30 italic">Masquer votre présence dans les regards posés.</p>
                         </div>
-                        <div className="w-12 h-6 rounded-full bg-white/5 border border-white/10 relative">
-                          <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white/20" />
+                        <div className={`w-12 h-6 rounded-full transition-all duration-500 border ${formData.isAnonymous ? "bg-gold/20 border-gold/50" : "bg-white/5 border-white/10"}`}>
+                          <div className={`w-4 h-4 rounded-full transition-all duration-500 mt-1 ${formData.isAnonymous ? "bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] ml-7" : "bg-white/20 ml-1"}`} />
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10">
-                      <FaInfoCircle className="text-gold/50 text-xs" />
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest">Certaines options nécessitent le rang Élite.</p>
                     </div>
                   </motion.div>
                 )}

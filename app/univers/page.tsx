@@ -105,18 +105,18 @@ export default function UniversPage() {
           Que vous soyez ici pour observer, apprendre ou participer activement, 
           le Palais est ouvert à toutes les âmes majeures et consentantes.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <a href="https://discord.gg/DrJ2rvEt6h" target="_blank" rel="noopener noreferrer">
-            <LuxuryButton className="px-12">
-              Rejoindre le Discord
-            </LuxuryButton>
-          </a>
-          <Link href="/membres">
-            <LuxuryButton variant="outline" className="px-12">
-              Rencontrer les membres
-            </LuxuryButton>
-          </Link>
-        </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+              <LuxuryButton className="w-full sm:w-auto px-10">
+                Rejoindre l'Expérience
+              </LuxuryButton>
+            </a>
+            <Link href="/membres" className="w-full sm:w-auto">
+              <LuxuryButton variant="outline" className="w-full sm:w-auto px-10">
+                Voir les Membres
+              </LuxuryButton>
+            </Link>
+          </div>
       </div>
     </main>
   );

@@ -19,7 +19,12 @@ export async function GET() {
       return new NextResponse("User Not Found", { status: 404 });
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json({
+      ...user,
+      tags: JSON.parse(user.tagsRaw || "[]"),
+      isPublic: user.isPublic,
+      isAnonymous: user.isAnonymous
+    });
   } catch (error) {
     console.error("[USER_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });

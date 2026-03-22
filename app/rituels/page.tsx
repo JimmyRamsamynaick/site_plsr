@@ -120,14 +120,14 @@ export default function RituelsPage() {
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <a href="https://discord.gg/DrJ2rvEt6h" target="_blank" rel="noopener noreferrer">
-            <LuxuryButton className="px-12">
-              Réserver sa place
+          <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+            <LuxuryButton className="w-full sm:w-auto px-10">
+              Pratiquer un Rituel
             </LuxuryButton>
           </a>
-          <Link href="/univers">
-            <LuxuryButton variant="outline" className="px-12">
-              Comprendre les rituels
+          <Link href="/" className="w-full sm:w-auto">
+            <LuxuryButton variant="outline" className="w-full sm:w-auto px-10">
+              Retour au Palais
             </LuxuryButton>
           </Link>
         </div>

@@ -39,7 +39,7 @@ export const Footer = () => {
               L'Univers
             </Link>
             <a 
-              href="https://discord.gg/DrJ2rvEt6h" 
+              href="https://discord.gg/kPrbFta8Rm" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-xs uppercase tracking-widest text-white/50 hover:text-gold transition-colors duration-300"

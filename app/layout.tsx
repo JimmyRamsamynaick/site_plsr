@@ -6,6 +6,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { ConnectionBadge } from "@/components/ui/connection-badge";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -46,7 +48,9 @@ export default function RootLayout({
             }}
           />
           <Navbar />
-          {children}
+          <Suspense fallback={<Loading />}>
+            {children}
+          </Suspense>
           <Footer />
           <ConnectionBadge />
         </AuthProvider>

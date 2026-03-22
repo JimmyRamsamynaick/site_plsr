@@ -143,7 +143,7 @@ export const ProfileHeader = ({ user, isPublicView = false }: ProfileHeaderProps
 
         {isPublicView && (
           <div className="flex gap-3 mb-2 w-full sm:w-auto">
-            <a href="https://discord.gg/DrJ2rvEt6h" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+            <a href="https://discord.gg/kPrbFta8Rm" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <button className="w-full px-6 py-2 rounded-full bg-gold/10 border border-gold/30 text-[11px] uppercase tracking-widest text-gold hover:bg-gold hover:text-black transition-all duration-300">
                 Rencontrer sur Discord
               </button>

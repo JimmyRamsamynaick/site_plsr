@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         authorId: session.user.id,
         profileId,
         parentId: parentId || null,
+        isRead: false,
       },
       include: {
         author: true,

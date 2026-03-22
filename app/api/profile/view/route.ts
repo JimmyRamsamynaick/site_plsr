@@ -20,6 +20,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
+    // Vérifier si le visiteur est en mode anonyme
+    const visitor = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isAnonymous: true }
+    });
+
+    // Si anonyme, on n'enregistre pas la vue (ou on pourrait l'enregistrer sans l'afficher, 
+    // mais ici on suit ta demande de "masquer la présence")
+    if (visitor?.isAnonymous) {
+      return NextResponse.json({ success: true });
+    }
+
     // Upsert la vue (met à jour le timestamp si déjà existant entre ces deux utilisateurs)
     await prisma.profileView.upsert({
       where: {

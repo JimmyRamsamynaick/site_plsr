@@ -135,7 +135,7 @@ export const CommentSection = ({ comments, profileId, currentUserId, isOwner }: 
   );
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12" id="secrets-section">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-serif text-white">Mur des <span className="text-gold-gradient italic">Secrets</span></h2>
         <span className="text-[10px] uppercase tracking-widest text-white/20">{comments.length} Murmures</span>
